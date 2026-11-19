@@ -1,0 +1,40 @@
+{
+ "_about": "Taxonomy for conference / festival / community-event recap videos: stage, crowd, booths, food, activities. Used by the tagging prompts, the matcher and the storyboard. Copy into storyboard_project.json 'taxonomy' (as {\"preset\": \"event_recap\", ...overrides}) to change it for one project.",
+ "categories": {
+  "stage_music": "band / singers / music or performance on a stage",
+  "speaker_stage": "someone speaking or presenting on a stage",
+  "crowd_audience": "the audience or a crowd (seated, standing, cheering, hands up)",
+  "booth_exhibit": "booths, exhibits, vendors, displays",
+  "registration_checkin": "registration desk, check-in, badges, lines",
+  "hallway_walking": "people walking through halls, lobbies, entrances",
+  "interview_talking_head": "a person talking to the camera / interview framing",
+  "food_market": "food, food trucks, market stalls, eating",
+  "outdoor_activity": "games or activities outside",
+  "indoor_activity": "games, workshops or activities inside",
+  "closeup_detail": "close-up of hands, objects, merch, details",
+  "signage_text": "signs, banners, screens with readable text",
+  "timelapse": "timelapse footage",
+  "other": "anything else"
+ },
+ "interview_category": "interview_talking_head",
+ "compat": [
+  ["stage_music", "crowd_audience", 0.6], ["crowd_audience", "hallway_walking", 0.5], ["crowd_audience", "indoor_activity", 0.5],
+  ["crowd_audience", "registration_checkin", 0.4], ["crowd_audience", "outdoor_activity", 0.4], ["crowd_audience", "food_market", 0.4],
+  ["booth_exhibit", "registration_checkin", 0.7], ["booth_exhibit", "signage_text", 0.5], ["booth_exhibit", "indoor_activity", 0.5],
+  ["booth_exhibit", "food_market", 0.5], ["booth_exhibit", "outdoor_activity", 0.4], ["booth_exhibit", "hallway_walking", 0.3],
+  ["speaker_stage", "interview_talking_head", 0.6], ["speaker_stage", "stage_music", 0.4],
+  ["interview_talking_head", "closeup_detail", 0.3], ["hallway_walking", "indoor_activity", 0.5], ["hallway_walking", "outdoor_activity", 0.4],
+  ["food_market", "outdoor_activity", 0.5], ["closeup_detail", "signage_text", 0.6], ["indoor_activity", "outdoor_activity", 0.6],
+  ["timelapse", "crowd_audience", 0.7], ["timelapse", "food_market", 0.8], ["timelapse", "hallway_walking", 0.5],
+  ["closeup_detail", "booth_exhibit", 0.4], ["closeup_detail", "indoor_activity", 0.3]
+ ],
+ "demand_rules": [
+  ["wave", "wav"],
+  ["posed", "pos(e|ing)|selfie|at camera"],
+  ["smile", "smil|laugh|grin|joy"],
+  ["cheer", "cheer"]
+ ],
+ "no_demand_categories": ["speaker_stage", "closeup_detail", "signage_text", "graphic"],
+ "slow_mo_categories": ["stage_music", "crowd_audience", "outdoor_activity", "indoor_activity", "food_market"],
+ "subject_hint": "raw footage of a live event (conference, festival, show, community gathering)"
+}

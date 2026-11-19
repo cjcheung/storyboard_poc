@@ -1,0 +1,32 @@
+# Python / OS
+__pycache__/
+*.pyc
+.DS_Store
+
+# Claude Code worktrees
+.claude/worktrees/
+
+# Media and editing projects never belong in this repo
+*.mp4
+*.mov
+*.m4v
+*.mxf
+*.mts
+*.braw
+*.wav
+*.mp3
+*.aac
+*.m4a
+*.drp
+*.png
+*.jpg
+*.jpeg
+
+# Project data (in case a video project is created inside the repo by mistake)
+storyboard_project.json
+**/catalog/
+**/history/
+**/storyboard/thumbs/
+**/storyboard/data.js
+**/storyboard/decisions/
+template_brief*.md

@@ -1,0 +1,15 @@
+{
+  "name": "storyboard-poc",
+  "description": "Video storyboard tools for Claude Code",
+  "owner": {
+    "name": "Caleb C"
+  },
+  "plugins": [
+    {
+      "name": "video-storyboard",
+      "description": "Imitate a template video with your own footage (template analysis, tagging, matching, storyboard page, DaVinci Resolve builds).",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

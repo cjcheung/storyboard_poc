@@ -1,0 +1,40 @@
+{
+ "_about": "Taxonomy for everyday / family / travel videos shot on phones and small cameras: people, kids, places, food, pets, activities. Copy into storyboard_project.json 'taxonomy' (as {\"preset\": \"everyday_vlog\", ...overrides}) to change it for one project.",
+ "categories": {
+  "people_closeup": "one or two people filling the frame (faces, reactions)",
+  "people_group": "a group of people together",
+  "kids_play": "children playing, running, exploring",
+  "talking_to_camera": "someone talking to the camera / vlog or interview framing",
+  "outdoor_scenery": "landscape, nature, sky, water, city skyline",
+  "street_walking": "walking or moving through streets, paths, trails",
+  "travel_transport": "car, train, plane, boat, bike - getting somewhere",
+  "indoor_home": "at home or inside a building, everyday moments",
+  "food_drink": "food, drinks, cooking, eating out",
+  "animals_pets": "pets or animals",
+  "activity_sports": "sports, games, rides, swimming, playground",
+  "landmark_signage": "landmarks, signs, place names with readable text",
+  "closeup_detail": "close-up of hands, objects, textures, details",
+  "timelapse": "timelapse or hyperlapse footage",
+  "other": "anything else"
+ },
+ "interview_category": "talking_to_camera",
+ "compat": [
+  ["people_closeup", "people_group", 0.5], ["people_closeup", "kids_play", 0.5], ["people_closeup", "talking_to_camera", 0.5],
+  ["people_group", "kids_play", 0.5], ["people_group", "activity_sports", 0.4], ["people_group", "food_drink", 0.3],
+  ["kids_play", "activity_sports", 0.7], ["kids_play", "outdoor_scenery", 0.3], ["kids_play", "indoor_home", 0.4],
+  ["outdoor_scenery", "street_walking", 0.5], ["outdoor_scenery", "travel_transport", 0.4], ["outdoor_scenery", "timelapse", 0.7],
+  ["street_walking", "travel_transport", 0.5], ["street_walking", "landmark_signage", 0.4], ["street_walking", "timelapse", 0.5],
+  ["indoor_home", "food_drink", 0.4], ["indoor_home", "animals_pets", 0.3], ["food_drink", "closeup_detail", 0.5],
+  ["landmark_signage", "closeup_detail", 0.4], ["landmark_signage", "outdoor_scenery", 0.4], ["animals_pets", "outdoor_scenery", 0.3],
+  ["activity_sports", "outdoor_scenery", 0.4]
+ ],
+ "demand_rules": [
+  ["wave", "wav"],
+  ["posed", "pos(e|ing)|selfie|at camera"],
+  ["smile", "smil|laugh|grin|joy|happy"],
+  ["cheer", "cheer|celebrat"]
+ ],
+ "no_demand_categories": ["outdoor_scenery", "landmark_signage", "closeup_detail", "travel_transport", "graphic"],
+ "slow_mo_categories": ["kids_play", "people_group", "activity_sports", "animals_pets", "outdoor_scenery"],
+ "subject_hint": "personal footage from everyday life, family time or a trip"
+}

@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storyboard</title>
+<style>
+:root{--bg:#161618;--panel:#1f1f23;--line:#33333a;--txt:#e8e8ec;--dim:#9a9aa5;--A:#d67814;--B:#1e9646;--C:#286ec8;--D:#8246be;--REF:#5a5a5a;--warn:#e5b13a;--bad:#e5534b;--ok:#46c37b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+button,select,input,textarea{font:inherit;color:inherit}
+button{background:#2b2b31;border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer}
+button:hover{background:#34343b}button:disabled{opacity:.4;cursor:not-allowed}
+#top{position:sticky;top:0;z-index:20;background:#101012ee;backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:8px 14px}
+#top .r1,#top .r2{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
+#top h1{font-size:16px;margin:0 8px 0 0}
+.count{color:var(--dim)}.count b{color:var(--txt)}
+input[type=text],input[type=search]{background:#232328;border:1px solid var(--line);border-radius:6px;padding:5px 8px}
+.seg button{border-radius:0}.seg button:first-child{border-radius:6px 0 0 6px}.seg button:last-child{border-radius:0 6px 6px 0}.seg button.on{background:#3b4a7a;border-color:#5a73c7}
+#strip{display:flex;height:22px;gap:1px;margin-top:2px}
+#strip div{background:#3a3a42;cursor:pointer;min-width:3px;border-radius:2px}
+#strip div:hover{outline:2px solid #fff}
+#strip .undecided{background:#4a4a52}#strip .keep{background:#2f8f55}#strip .change{background:#d67814}#strip .speed{background:#3b88d6}#strip .locked{background:#26262b}#strip .note{background:#8a7a2a}
+#msg{color:var(--dim);font-size:12px}
+.help{font-size:12px;color:var(--dim);padding:0 14px 6px}
+.help b{color:var(--txt)}
+main{padding:10px 14px 80px;max-width:1700px;margin:0 auto}
+.row{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin:0 0 14px;scroll-margin-top:130px;overflow:hidden}
+.row[hidden]{display:none}
+.row.s-change{border-color:#8a5311}.row.s-keep{border-color:#245f3a}.row.s-speed{border-color:#2d5f93}
+.rh{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;padding:8px 12px;border-bottom:1px solid var(--line);background:#25252a}
+.sid{font-size:20px;font-weight:700}
+.tc{font-family:ui-monospace,Menlo,monospace;color:#cfd3ff}.tc button{padding:1px 6px;font-size:11px;margin-left:4px}
+.desc{flex:1 1 320px;color:#d0d0d8}
+.status{margin-left:auto;font-size:12px;padding:2px 8px;border-radius:99px;background:#3a3a42}
+.status.keep{background:#245f3a}.status.change{background:#8a5311}.status.speed{background:#2d5f93}.status.locked{background:#26262b;color:var(--dim)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.chip{font-size:11px;padding:1px 6px;border-radius:4px;background:#34343c;color:#cfcfd8;white-space:nowrap}
+.chip.good{background:#1d5a37;color:#b8f0cc}.chip.warn{background:#6b5314;color:#ffe29a}.chip.bad{background:#6b2420;color:#ffc4be}.chip.fx{background:#1f4f63;color:#b6e6f7}
+.cells{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding:10px 12px}
+@media (max-width:1250px){.cells{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:800px){.cells{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cell{position:relative;display:block;border:3px solid var(--REF);border-radius:8px;overflow:hidden;background:#111;cursor:pointer}
+.cell.ref{cursor:default}
+.cell[data-l=A]{border-color:var(--A)}.cell[data-l=B]{border-color:var(--B)}.cell[data-l=C]{border-color:var(--C)}.cell[data-l=D]{border-color:var(--D)}
+.cell.sel{box-shadow:0 0 0 3px #fff inset,0 0 14px 2px #ffffff55}
+.cell .img{aspect-ratio:var(--ar,16/9);background:#000;display:block}.cell img{width:100%;height:100%;object-fit:contain;display:block}
+.badge{position:absolute;left:0;top:0;min-width:34px;padding:2px 9px;font-weight:800;font-size:20px;color:#fff;background:var(--REF);border-bottom-right-radius:8px}
+.cell[data-l=A] .badge{background:var(--A)}.cell[data-l=B] .badge{background:var(--B)}.cell[data-l=C] .badge{background:var(--C)}.cell[data-l=D] .badge{background:var(--D)}
+.tick{position:absolute;right:6px;top:6px;background:#fff;color:#000;font-weight:800;border-radius:99px;padding:0 8px;font-size:12px;display:none}
+.cell.sel .tick{display:block}
+.cap{padding:6px 8px;background:#18181b;min-height:92px}
+.cap .lab{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--dim)}
+.cap .cid{font-weight:600;word-break:break-all}.cap .sum{color:#c7c7d0;font-size:12px;margin:2px 0}.cap .win{color:var(--dim);font-size:11px}
+.cell.locked{border-color:#444;cursor:default}.cell.locked .img{display:flex;align-items:center;justify-content:center;padding:14px;background:#000}
+.cell.locked .badge{background:#555}.cell.built{border-color:#7a5ec2}.cell.built .badge{background:#7a5ec2}.cell.locked .img img{padding:0}
+.needtxt{color:#f2d27a;font-size:13px;line-height:1.4;text-align:left}.sum.need b{color:#f2d27a}
+.rf{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:8px 12px;border-top:1px solid var(--line);background:#1a1a1e}
+.rf label{display:flex;gap:6px;align-items:center;color:#cfcfd8}
+.rf textarea{flex:1 1 280px;min-height:34px;max-height:90px;background:#232328;border:1px solid var(--line);border-radius:6px;padding:5px 8px;resize:vertical}
+.warnbar{padding:5px 12px;font-size:12px}.warnbar.bad{background:#4a1f1c;color:#ffc4be}.warnbar.warn{background:#4a3c10;color:#ffe29a}
+.hist{padding:4px 12px;font-size:12px;color:var(--dim);border-top:1px dashed var(--line)}
+.seg2{display:inline-flex}.seg2 button{border-radius:0}.seg2 button:first-child{border-radius:6px 0 0 6px}.seg2 button:last-child{border-radius:0 6px 6px 0}.seg2 button.on{background:#3b88d6;border-color:#6aaaf0}
+#toast{position:fixed;right:14px;bottom:14px;background:#111;border:1px solid var(--line);padding:8px 12px;border-radius:8px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:50}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="top">
+  <div class="r1">
+    <h1 id="title">Storyboard</h1>
+    <span class="count" id="c-main"></span>
+    <span style="flex:1"></span>
+    <label class="count">Your name <input type="text" id="who" size="12" placeholder="your name"></label>
+    <button id="b-connect" title="Pick the 'storyboard' folder once; your choices then auto-save to storyboard/decisions/inbox.json (Chrome / Edge)">Connect folder (autosave)</button>
+    <button id="b-save">Save now</button>
+    <button id="b-copy" title="Copies a plain-text summary + JSON you can paste to Claude">Copy for Claude</button>
+    <button id="b-dl">Download JSON</button>
+  </div>
+  <div class="r2">
+    <span class="seg" id="filters">
+      <button data-f="all" class="on">All</button><button data-f="undecided">Undecided</button><button data-f="changes">Changes</button><button data-f="flagged">Flagged</button><button data-f="locked">Locked</button>
+    </span>
+    <input type="search" id="q" placeholder="search slot, clip, text..." size="26">
+    <button id="b-accept" title="For every undecided row that has a PROPOSED option, choose it">Accept all proposals</button>
+    <button id="b-keep" title="Mark every undecided row as keep-current">Keep all current</button>
+    <button id="b-clear">Clear all</button>
+    <span id="msg"></span>
+  </div>
+  <div id="strip" title="Click a block to jump to that slot"></div>
+</div>
+<div class="help"><b>How to use:</b> in each row click a picture to choose it (A = on the timeline now, B/C/D = options; B is Claude's proposal when there is one). Optionally switch <b>50% slow-mo</b>, say what happens to the shot you replace, lock the slot, or leave a note. Nothing is applied to Resolve from this page - your choices are saved to a file and Claude applies them next round.</div>
+<main id="rows"></main>
+<div id="toast"></div>
+<script src="data.js"></script>
+<script>
+(function(){
+const D = window.SB;
+if(!D){document.body.insertAdjacentHTML('beforeend','<p style="padding:20px">data.js is missing - run <code>python3 sb.py storyboard</code>.</p>');return;}
+const PID = String(D.project||'storyboard').replace(/[^A-Za-z0-9_-]/g,'_');
+const TITLE = (D.title||'Video')+' storyboard';
+document.title = TITLE; document.getElementById('title').textContent = TITLE;
+if(D.aspect) document.documentElement.style.setProperty('--ar', D.aspect[0]+'/'+D.aspect[1]);
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $ = (s,e=document)=>e.querySelector(s);
+const KEY = 'sb_'+PID+'_r'+D.round+'_'+D.timeline;
+const S = {dec:{}, notes:{}, who:localStorage.getItem('sb_who')||'', dir:null, filter:'all', q:''};
+const slotBy = {}; D.slots.forEach(s=>slotBy[s.id]=s);
+const refs = {};
+
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),2200);}
+
+/* ---------- options ---------- */
+function options(slot){
+  if(!slot.current) return [];
+  const c = slot.current, A = {letter:'A',label:'CURRENT (on timeline now)',clip:c.clip,in:c.in,out:c.out,speed:c.speed,slow_ok:c.slow_ok,img:c.img,zoom:c.zoom,isCurrent:true};
+  return [A].concat(slot.locked?[]:slot.options);
+}
+function optOf(slot,letter){return options(slot).find(o=>o.letter===letter);}
+function optByClip(slot,clip){return options(slot).find(o=>o.clip===clip);}
+function winFor(slot,o,speed){
+  const clip = D.clips[o.clip], L = Math.max(slot.dur_s/(speed===50?2:1),0.05);
+  if(!o.isCurrent){ const w = speed===50 ? o.win_slow : o.win_normal; if(w) return w; }
+  if(o.isCurrent && (o.speed===speed)) return [o.in,o.out];
+  const mid=(o.in+o.out)/2; let s=Math.max(0,Math.min(mid-L/2,clip.dur-L)); return [s,s+L];
+}
+function decOf(slot){return S.dec[slot.id];}
+function finalOpt(slot){const d=decOf(slot); if(d){const o=optByClip(slot,d.clip); if(o) return o;} return slot.current?optOf(slot,'A'):null;}
+function finalSpeed(slot){const d=decOf(slot), o=finalOpt(slot); if(!o) return null; return (d && d.speed!=null)?d.speed:o.speed;}
+function statusOf(slot){
+  if(slot.locked||!slot.current) return 'locked';
+  const d=decOf(slot);
+  if(!d) return S.notes[slot.id]?'note':'undecided';
+  if(d.clip!==slot.current.clip) return 'change';
+  if((d.speed!=null?d.speed:slot.current.speed)!==slot.current.speed) return 'speed';
+  return 'keep';
+}
+const STATUS_TXT={undecided:'undecided',keep:'keep current',change:'change',speed:'speed change',locked:'locked',note:'note only'};
+
+/* ---------- timecode ---------- */
+function copyText(t){
+  if(navigator.clipboard&&navigator.clipboard.writeText) return navigator.clipboard.writeText(t).catch(()=>fallback(t));
+  fallback(t); return Promise.resolve();
+}
+function fallback(t){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');}catch(e){}a.remove();}
+
+/* ---------- chips ---------- */
+function chipsFor(clipId, slot){
+  const c=D.clips[clipId]; if(!c) return '';
+  const h=[];
+  if(c.waves) h.push('<span class="chip good">WAVES</span>');
+  if(c.smile) h.push('<span class="chip good">SMILES AT CAM</span>');
+  if(c.good!=null) h.push('<span class="chip">good-time '+c.good+'/5</span>');
+  else if(c.det!=null && c.det>=0.5) h.push('<span class="chip" title="face detector only, not visually checked">detector: smiles</span>');
+  if(c.expression==='laughing') h.push('<span class="chip good">laughing</span>');
+  if(c.release) h.push('<span class="chip bad">check releases</span>');
+  if(c.mismatch) h.push('<span class="chip bad">'+esc(D.mismatch_label||'wrong orientation')+'</span>');
+  if(c.grade) h.push('<span class="chip warn">flat - needs grade</span>');
+  if(c.category==='timelapse') h.push('<span class="chip warn">timelapse - scaled to fill</span>');
+  return h.join('');
+}
+
+/* ---------- build rows ---------- */
+function buildRow(slot){
+  const root=document.createElement('section'); root.className='row'; root.id=slot.id;
+  const fx = slot.fx.map(f=>'<span class="chip fx">'+esc(f)+'</span>').join('');
+  let head = '<div class="rh"><span class="sid">'+slot.id+'</span><span class="tc">'+slot.tc_in+' &ndash; '+slot.tc_out+' &middot; '+slot.dur_s.toFixed(2)+'s <button data-tc="'+slot.tc_in+'" title="Copy timecode (paste into Resolve\'s timecode box)">copy TC</button></span>'
+    + '<span class="desc">'+esc(slot.desc)+(slot.text_on_screen?' <i style="color:var(--dim)">[text: '+esc(slot.text_on_screen)+']</i>':'')+'<div class="chips">'+fx+(slot.sug?'<span class="chip good" title="options were picked to match your note">options from your note: '+esc(slot.sug)+'</span>':'')+'</div></span><span class="status" data-role="status"></span></div>';
+  let cells = slot.inserted
+    ? '<div class="cell ref" data-l="REF"><span class="badge" style="font-size:14px;padding-top:5px">NEW</span><span class="img" style="display:flex;align-items:center;justify-content:center;padding:16px;text-align:center;color:#9a9aa5;background:#000">Inserted shot &mdash; added to this edit; no template counterpart.</span><div class="cap"><div class="lab">Inserted slot</div><div class="sum">Keeps the cut rhythm around it.</div><div class="win">'+slot.dur_s.toFixed(2)+'s slot</div></div></div>'
+    : '<div class="cell ref" data-l="REF"><span class="badge" style="font-size:14px;padding-top:5px">REF</span><span class="img"><img loading="lazy" src="'+slot.ref_img+'" alt=""></span><div class="cap"><div class="lab">Reference (template)</div><div class="sum">'+esc(slot.desc)+'</div><div class="win">'+slot.dur_s.toFixed(2)+'s slot</div></div></div>';
+  const R={root,cells:{}};
+  if(!slot.current || slot.locked){
+    const k=slot.card||{needs:'Kept as the template\'s own shot.',title:'Locked'};
+    cells += '<div class="cell locked'+(k.built?' built':'')+'" data-l="LOCK"><span class="badge" style="font-size:13px;padding-top:6px">'+(k.built?'BUILT':'NEEDS')+'</span>'
+      + '<span class="img">'+(k.img?'<img loading="lazy" src="'+k.img+'" alt="">':'<span class="needtxt">'+esc(k.needs)+'</span>')+'</span>'
+      + '<div class="cap"><div class="lab">'+esc(k.title)+'</div>'+(k.built?'<div class="sum">'+esc(k.how)+'</div><div class="sum need"><b>Still needed:</b> '+esc(k.needs)+'</div><div class="win">'+esc(k.asset)+'</div>':'<div class="sum need">Locked - Claude will not change this slot.</div>')+'</div></div>';
+    root.innerHTML = head+'<div class="cells">'+cells+'</div><div class="rf"><textarea data-role="note" placeholder="Note for Claude about this slot (optional)"></textarea></div>';
+  } else {
+    options(slot).forEach(o=>{
+      const c=D.clips[o.clip];
+      cells += '<label class="cell opt" data-l="'+o.letter+'"><span class="badge">'+o.letter+'</span><span class="tick">chosen</span><span class="img"><img loading="lazy" src="'+o.img+'" alt=""></span>'
+        + '<div class="cap"><div class="lab">'+(o.isCurrent?'Current (on timeline now)':o.label==='PROPOSED'?'Proposed by Claude':o.label==='SUGGESTED'?'Suggested for your note':'Alternate')+'</div>'
+        + '<div class="cid">'+o.clip+' &middot; '+esc(c.file)+'</div><div class="sum">'+esc(c.summary)+'</div><div class="win" data-role="win"></div><div class="chips">'+(o.zoom&&c.category!=='timelapse'?'<span class="chip warn">cropped in '+o.zoom+'x</span>':'')+chipsFor(o.clip,slot)+'</div></div></label>';
+    });
+    root.innerHTML = head+'<div class="cells">'+cells+'</div><div data-role="warn"></div>'
+      + '<div class="rf"><span>Speed <span class="seg2" data-role="speed"><button data-s="100">Normal</button><button data-s="50">50% slow-mo</button></span></span>'
+      + '<label data-role="rejwrap">The shot you replace (A) will be <select data-role="rej"><option value="slot">rejected for this slot</option><option value="never">never used again</option><option value="none">just replaced (may be offered again)</option></select></label>'
+      + '<label><input type="checkbox" data-role="lock"> Lock this slot after this round</label>'
+      + '<button data-role="reset">Reset</button>'
+      + '<textarea data-role="note" placeholder="Note for Claude about this slot, e.g. &quot;want someone smiling at the camera&quot; or &quot;find different options&quot;"></textarea></div>';
+  }
+  if(slot.history && slot.history.length) root.insertAdjacentHTML('beforeend','<div class="hist"><b>History:</b> '+slot.history.map(esc).join(' &middot; ')+'</div>');
+  R.status=$('[data-role=status]',root); R.warn=$('[data-role=warn]',root); R.note=$('[data-role=note]',root);
+  root.querySelectorAll('.cell.opt').forEach(c=>{R.cells[c.dataset.l]=c; c.addEventListener('click',e=>{e.preventDefault(); choose(slot,c.dataset.l);});});
+  const tcb=$('[data-tc]',root); if(tcb) tcb.addEventListener('click',()=>{copyText(tcb.dataset.tc).then(()=>toast('Copied '+tcb.dataset.tc));});
+  R.note.addEventListener('input',()=>{ if(R.note.value.trim()) S.notes[slot.id]=R.note.value; else delete S.notes[slot.id]; changed(); });
+  if(slot.current && !slot.locked){
+    root.querySelectorAll('[data-role=speed] button').forEach(b=>b.addEventListener('click',()=>setSpeed(slot,+b.dataset.s)));
+    R.rej=$('[data-role=rej]',root); R.lock=$('[data-role=lock]',root); R.speedBtns=root.querySelectorAll('[data-role=speed] button'); R.rejwrap=$('[data-role=rejwrap]',root);
+    R.rej.addEventListener('change',()=>{ensure(slot).reject=R.rej.value; changed();});
+    R.lock.addEventListener('change',()=>{ensure(slot).lock=R.lock.checked; changed();});
+    $('[data-role=reset]',root).addEventListener('click',()=>{delete S.dec[slot.id]; changed();});
+  }
+  refs[slot.id]=R; return root;
+}
+function ensure(slot){
+  let d=S.dec[slot.id];
+  if(!d){d=S.dec[slot.id]={clip:slot.current.clip,speed:null,reject:'slot',lock:false};}
+  return d;
+}
+function choose(slot,letter){
+  const o=optOf(slot,letter); if(!o) return;
+  const d=ensure(slot); d.clip=o.clip; d.speed=(letter==='A')?null:o.speed; changed();
+}
+function setSpeed(slot,v){
+  const d=ensure(slot), o=finalOpt(slot);
+  if(v===50 && !o.slow_ok){toast('50% slow-mo needs a 60 fps clip with enough footage');return;}
+  d.speed=v; changed();
+}
+
+/* ---------- refresh ---------- */
+function nearDup(a,b){
+  const A=D.clips[a],B=D.clips[b]; if(!A||!B||A.folder!==B.folder||A.category==='timelapse'&&B.category==='timelapse') return false;
+  if(A.created&&B.created&&Math.abs(A.created-B.created)<=90) return true;
+  return !!(A.numkey&&B.numkey&&A.numkey[0]===B.numkey[0]&&A.numkey[1]===B.numkey[1]&&Math.abs(A.numkey[2]-B.numkey[2])===1);
+}
+function refresh(){
+  const finals={}, fwin={}; let n={undecided:0,keep:0,change:0,speed:0,note:0}, total=0;
+  D.slots.forEach(s=>{ if(s.locked||!s.current) return; total++; const st=statusOf(s); n[st]=(n[st]||0)+1; const o=finalOpt(s); finals[s.id]=o.clip; fwin[s.id]=winFor(s,o,finalSpeed(s)); });
+  const use={}; Object.keys(finals).forEach(k=>{(use[finals[k]]=use[finals[k]]||[]).push(k);});
+  const ids=Object.keys(finals); let warns=0;
+  D.slots.forEach(s=>{
+    const R=refs[s.id], st=statusOf(s); R.root.className='row s-'+st;
+    R.status.textContent=STATUS_TXT[st]; R.status.className='status '+st;
+    if(st!=='locked' && s.current){
+      const d=decOf(s), fo=finalOpt(s), sp=finalSpeed(s);
+      Object.keys(R.cells).forEach(l=>{ R.cells[l].classList.toggle('sel', !!d && fo.letter===l); });
+      Object.keys(R.cells).forEach(l=>{ const o=optOf(s,l); const sp2=(fo.letter===l)?sp:o.speed; const w=winFor(s,o,sp2); const clip=D.clips[o.clip];
+        $('[data-role=win]',R.cells[l]).textContent='in '+w[0].toFixed(1)+'s → '+w[1].toFixed(1)+'s of '+clip.dur.toFixed(0)+'s · '+clip.fps.toFixed(0)+'fps'+(sp2===50?' · 50% slow-mo (plays '+s.dur_s.toFixed(2)+'s)':''); });
+      R.speedBtns.forEach(b=>{b.classList.toggle('on', +b.dataset.s===sp);});
+      const replaced = d && d.clip!==s.current.clip;
+      R.rejwrap.style.display = replaced?'':'none';
+      R.rej.value = d?d.reject:'slot'; R.lock.checked = !!(d&&d.lock);
+      const w=[]; const mine=finals[s.id];
+      (use[mine]||[]).filter(x=>x!==s.id).forEach(x=>{const a=fwin[s.id],b=fwin[x]; if(a[0]<b[1]&&b[0]<a[1]) w.push(['bad','Uses the same frames as '+x+' – the same file is fine, but pick a different moment or clip.']);});
+      ids.filter(x=>x!==s.id && nearDup(mine,finals[x])).forEach(x=>w.push(['warn','Possibly the same scene as '+finals[x]+' in '+x+' (shot back-to-back).']));
+      if(D.clips[mine].release) w.push(['warn','This clip shows identifiable people who may need a release – check before publishing.']);
+      R.warn.innerHTML = w.map(x=>'<div class="warnbar '+x[0]+'">'+esc(x[1])+'</div>').join('');
+      R.hasWarn = w.some(x=>x[0]==='bad'||x[0]==='warn'); warns += w.filter(x=>x[0]==='bad').length;
+    } else R.hasWarn=false;
+    if(R.note.value!==(S.notes[s.id]||'')) R.note.value=S.notes[s.id]||'';
+  });
+  document.querySelectorAll('#strip div').forEach(d=>{d.className=statusOf(slotBy[d.dataset.s]);});
+  const decided=n.keep+n.change+n.speed;
+  $('#c-main').innerHTML='<b>'+decided+'</b> / '+total+' decided &middot; <b>'+n.change+'</b> changes &middot; <b>'+n.speed+'</b> speed changes &middot; '+n.undecided+' undecided'+(warns?' &middot; <b style="color:var(--bad)">'+warns+' duplicate-clip warning(s)</b>':'');
+  applyFilter();
+}
+function applyFilter(){
+  const q=S.q.toLowerCase();
+  D.slots.forEach(s=>{
+    const R=refs[s.id], st=statusOf(s); let show=true;
+    if(S.filter==='undecided') show = st==='undecided'||st==='note';
+    else if(S.filter==='changes') show = st==='change'||st==='speed';
+    else if(S.filter==='flagged') show = !!R.hasWarn || (s.current&&!s.locked&&D.clips[finalOpt(s).clip].release);
+    else if(S.filter==='locked') show = st==='locked';
+    if(show&&q){ const hay=[s.id,s.desc,s.text_on_screen].concat(options(s).map(o=>o.clip+' '+D.clips[o.clip].file+' '+D.clips[o.clip].summary)).join(' ').toLowerCase(); show=hay.includes(q); }
+    R.root.hidden=!show;
+  });
+}
+
+/* ---------- persistence ---------- */
+function payload(){
+  const out=[];
+  D.slots.forEach(s=>{
+    if(s.locked||!s.current) { if(S.notes[s.id]) out.push({slot:s.id,action:'note',note:S.notes[s.id]}); return; }
+    const d=decOf(s), st=statusOf(s);
+    if(!d){ if(S.notes[s.id]) out.push({slot:s.id,action:'note',note:S.notes[s.id]}); return; }
+    const o=finalOpt(s), sp=finalSpeed(s), w=winFor(s,o,sp);
+    const e={slot:s.id, action:st==='change'?'swap':st==='speed'?'speed_change':'keep', choice:o.letter, clip:o.clip, speed_percent:sp, src_in_s:+w[0].toFixed(2), src_out_s:+w[1].toFixed(2), lock:!!d.lock};
+    if(st==='change'){ e.previous_clip=s.current.clip; e.previous_speed_percent=s.current.speed; e.reject_previous=d.reject; }
+    if(S.notes[s.id]) e.note=S.notes[s.id];
+    out.push(e);
+  });
+  return {app:'video-storyboard',project:D.project,version:1,round:D.round,based_on_timeline:D.timeline,data_built:D.built,who:S.who,saved:new Date().toISOString(),decisions:out};
+}
+function load(p){
+  S.dec={}; S.notes={};
+  (p.decisions||[]).forEach(e=>{
+    const s=slotBy[e.slot]; if(!s) return;
+    if(e.note) S.notes[e.slot]=e.note;
+    if(e.action==='note'||!s.current||s.locked) return;
+    const o=optByClip(s,e.clip); if(!o) { toast('Options changed for '+e.slot+' – please re-check it'); return; }
+    S.dec[e.slot]={clip:e.clip,speed:(e.speed_percent!==o.speed||o.isCurrent&&e.speed_percent!==s.current.speed)?e.speed_percent:null,reject:e.reject_previous||'slot',lock:!!e.lock};
+    if(o.isCurrent && e.speed_percent===s.current.speed) S.dec[e.slot].speed=null;
+  });
+}
+function localSave(){localStorage.setItem(KEY,JSON.stringify(payload()));}
+let saveTimer=null;
+function changed(){ refresh(); localSave(); clearTimeout(saveTimer); saveTimer=setTimeout(()=>writeInbox(false),700); }
+async function writeInbox(loud){
+  if(!S.dir) { if(loud) toast('Not connected – use Connect folder, or Download JSON / Copy for Claude'); return; }
+  try{
+    const dd=await S.dir.getDirectoryHandle('decisions',{create:true});
+    const fh=await dd.getFileHandle('inbox.json',{create:true});
+    const w=await fh.createWritable(); await w.write(JSON.stringify(payload(),null,1)); await w.close();
+    $('#msg').textContent='saved to decisions/inbox.json at '+new Date().toLocaleTimeString();
+    if(loud) toast('Saved');
+  }catch(e){ $('#msg').textContent='autosave failed: '+e.message; }
+}
+async function readInbox(){
+  try{ const dd=await S.dir.getDirectoryHandle('decisions'); const fh=await dd.getFileHandle('inbox.json'); return JSON.parse(await (await fh.getFile()).text()); }catch(e){return null;}
+}
+/* remember the folder between visits (IndexedDB) */
+const idb={open(){return new Promise((res,rej)=>{const r=indexedDB.open('sb_'+PID,1);r.onupgradeneeded=()=>r.result.createObjectStore('h');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});},
+  async get(k){const db=await this.open();return new Promise(res=>{const q=db.transaction('h').objectStore('h').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>res(null);});},
+  async set(k,v){const db=await this.open();return new Promise(res=>{const t=db.transaction('h','readwrite');t.objectStore('h').put(v,k);t.oncomplete=()=>res();});}};
+async function connect(h){
+  S.dir=h; $('#b-connect').textContent='Autosave on: '+h.name;
+  if(h.name!=='storyboard') toast('Tip: choose the folder named "storyboard"');
+  const p=await readInbox();
+  if(p && p.round===D.round && p.decisions && p.decisions.length && !Object.keys(S.dec).length){ load(p); refresh(); localSave(); toast('Loaded your saved choices ('+p.decisions.length+')'); }
+  else await writeInbox(false);
+}
+$('#b-connect').addEventListener('click',async()=>{
+  if(!window.showDirectoryPicker){toast('Folder autosave needs Chrome or Edge. Use Download JSON / Copy for Claude.');return;}
+  try{ let h=S.dir; if(!h) h=await idb.get('dir');
+    if(h){ const perm=await h.requestPermission({mode:'readwrite'}); if(perm==='granted'){ await connect(h); return; } }
+    h=await window.showDirectoryPicker({mode:'readwrite',id:('sb-'+PID).slice(0,32)}); await idb.set('dir',h); await connect(h);
+  }catch(e){ if(e.name!=='AbortError') toast('Could not connect: '+e.message); }
+});
+$('#b-save').addEventListener('click',()=>{localSave(); writeInbox(true);});
+$('#b-dl').addEventListener('click',()=>{
+  const b=new Blob([JSON.stringify(payload(),null,1)],{type:'application/json'}); const a=document.createElement('a');
+  a.href=URL.createObjectURL(b); a.download=PID+'_decisions_round'+D.round+'_'+(S.who||'me')+'.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+});
+$('#b-copy').addEventListener('click',()=>{
+  const p=payload(), L=[TITLE+' decisions — round '+D.round+', timeline '+D.timeline+', from '+(S.who||'?')+', '+new Date().toLocaleString(),''];
+  p.decisions.forEach(e=>{
+    const sl=slotBy[e.slot];
+    if(e.action==='note') L.push(e.slot+': note — '+e.note);
+    else if(e.action==='swap') L.push(e.slot+': SWAP to '+e.choice+' ('+e.clip+') at '+e.speed_percent+'% speed; replaced '+e.previous_clip+' ('+(e.reject_previous==='slot'?'reject for this slot':e.reject_previous==='never'?'NEVER use again':'just replaced')+')'+(e.lock?'; lock':'')+(e.note?' — '+e.note:''));
+    else if(e.action==='speed_change') L.push(e.slot+': keep '+e.clip+' but speed '+e.speed_percent+'%'+(e.lock?'; lock':'')+(e.note?' — '+e.note:''));
+    else L.push(e.slot+': keep current '+e.clip+(e.lock?'; lock':'')+(e.note?' — '+e.note:''));
+  });
+  L.push('', '```json', JSON.stringify(p), '```');
+  copyText(L.join('\n')).then(()=>toast('Copied – paste it into Claude'));
+});
+$('#b-accept').addEventListener('click',()=>{
+  let n=0; D.slots.forEach(s=>{ if(s.locked||!s.current||decOf(s)) return; const o=s.options.find(x=>x.label==='PROPOSED'); if(o){ const d=ensure(s); d.clip=o.clip; d.speed=o.speed; n++; } });
+  changed(); toast(n+' proposals accepted');
+});
+$('#b-keep').addEventListener('click',()=>{ let n=0; D.slots.forEach(s=>{ if(s.locked||!s.current||decOf(s)) return; ensure(s); n++; }); changed(); toast(n+' rows set to keep current'); });
+$('#b-clear').addEventListener('click',()=>{ if(confirm('Clear all choices and notes on this page?')){ S.dec={}; S.notes={}; changed(); } });
+$('#who').value=S.who; $('#who').addEventListener('input',e=>{S.who=e.target.value; localStorage.setItem('sb_who',S.who); localSave();});
+document.querySelectorAll('#filters button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#filters button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); S.filter=b.dataset.f; applyFilter();}));
+$('#q').addEventListener('input',e=>{S.q=e.target.value; applyFilter();});
+
+/* ---------- init ---------- */
+const main=$('#rows'); D.slots.forEach(s=>main.appendChild(buildRow(s)));
+const strip=$('#strip');
+D.slots.forEach(s=>{const d=document.createElement('div'); d.dataset.s=s.id; d.style.flex=(s.tl_end-s.tl_start)+' 0 0'; d.title=s.id+'  '+s.tc_in+'  '+s.dur_s.toFixed(2)+'s';
+  d.addEventListener('click',()=>{const r=document.getElementById(s.id); if(r.hidden){S.filter='all';document.querySelectorAll('#filters button').forEach(x=>x.classList.toggle('on',x.dataset.f==='all'));applyFilter();} r.scrollIntoView({behavior:'smooth',block:'start'});}); strip.appendChild(d);});
+try{ const saved=JSON.parse(localStorage.getItem(KEY)||'null'); if(saved) load(saved); }catch(e){}
+refresh();
+(async()=>{ try{ const h=await idb.get('dir'); if(h && h.queryPermission){ if((await h.queryPermission({mode:'readwrite'}))==='granted') await connect(h); else $('#b-connect').textContent='Reconnect folder (autosave)'; } }catch(e){} })();
+})();
+</script>
+</body>
+</html>
