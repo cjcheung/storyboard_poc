@@ -24,7 +24,7 @@ DaVinci Resolve Studio + its MCP server for the timeline; optional macOS Swift (
 | Phase | What | Commands | Details |
 |---|---|---|---|
 | 1 Project | create the folder, pick the taxonomy preset, ask what the video is for | `init <dir> --template <video> --footage <dir> --preset event_recap\|everyday_vlog` | references/project-config.md |
-| 2 Template | cuts -> **you review the cut sheets** -> slots -> tag slots (helpers) -> merge -> brief; confirm the brief with the person | `template-cuts`, `template-slots`, `prompt tag_template_slots`, `template-merge`, `template-brief` | references/template-analysis.md |
+| 2 Template | cuts -> **you review the cut sheets** -> slots -> tag slots (helpers) -> merge -> brief; confirm the brief with the person; no footage yet? `storyboard --round 0` = a shooting storyboard + shot_list.md | `template-cuts`, `template-slots`, `prompt tag_template_slots`, `template-merge`, `template-brief`, `storyboard` | references/template-analysis.md |
 | 3 Footage | scan a batch -> tag clip sheets (helpers) -> merge -> optional smile scan -> scores | `scan --batch bNN`, `prompt tag_clips`, `merge-batch`, `expressions`, `score` | references/footage-and-tagging.md |
 | 4 Match | proposal -> first picks -> storyboard page; the person chooses, you apply; repeat per round | `match --name roundN`, `apply --from-proposal`, `storyboard`, `apply`, `suggest` | references/matching-and-storyboard.md |
 | 5 Build | plan -> Resolve: import, build, overlay (interviews/A-roll, music), markers, verify; one new timeline version per change | `plan`, `resolve-script <name>` | references/resolve-build.md, references/resolve-gotchas.md |

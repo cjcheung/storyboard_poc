@@ -12,6 +12,12 @@
 - Writes `catalog/match_sheet_<name>.json/.csv` with up to 3 alternates per slot and flags (wrong orientation, timelapse crop,
   needs grade, check releases, possible duplicate scene = same folder + shot within 90 s or consecutive file numbers).
 
+## Before there is footage: a shooting storyboard
+`sb.py storyboard --round 0` right after the template analysis builds the page as a shot list: each row shows the template's frame next
+to a TO FILM card (what is in the shot, framing, people, camera, energy, how many seconds to film, text added in the edit, the slot's notes)
+or an IN EDIT card for cards/graphics (describe those in `catalog/graphic_slots.json`, optional `"badge": "IN EDIT"`). It also writes
+`storyboard/shot_list.md`, a printable table of every slot. Rows switch to clip options automatically once footage is scanned and matched.
+
 ## Rounds
 1. First round: `match --name round1` -> `apply --from-proposal round1 --timeline <name>_v1` (the proposal becomes the current picks,
    logged as initial_pick) -> `storyboard --proposal round1 --round 1` -> build v1 in Resolve (resolve-build.md).

@@ -6,6 +6,8 @@ Writes  storyboard/index.html, storyboard/data.js, storyboard/thumbs/...   (open
   thumbs/slot/<slot>_<clip>_<t>.jpg   what a clip looks like inside the window it would use for that slot
   thumbs/clips/<clipid>.jpg           one preview per clip in the catalog (its best / happiest moment) - for browsing later
 Row options: A = pick on the timeline now, then up to 3 options: the proposal (if it differs from A) followed by the best unused alternates.
+Before there is any footage (or for slots nothing was picked for yet) a row shows the template frame next to a TO FILM card describing the
+shot to capture, and storyboard/shot_list.md lists every slot as a printable shot list.
 Re-run after every round (it is idempotent; existing images are reused)."""
 import argparse, csv, datetime, json, os, pathlib, re, shutil, subprocess, sys
 from concurrent.futures import ThreadPoolExecutor
@@ -26,12 +28,14 @@ for d in ("ref", "slot", "clips", "graphics"): (SB / "thumbs" / d).mkdir(parents
 (SB / "decisions").mkdir(parents=True, exist_ok=True)
 TW, TH = (270, 480) if P.PORTRAIT_PROJECT else (480, 270)       # thumbnail box in the project's orientation
 
+cat = expr.load(P.catalog())
 ms_path = P.CATALOG / f"match_sheet_{args.proposal}.json"
-if not ms_path.exists():
+if not ms_path.exists() and cat:
     subprocess.run([sys.executable, str(P.SCRIPTS / "match.py"), "--project", str(P.PROJECT), "--name", args.proposal], check=True)
+elif not cat:
+    print("no footage in the catalog yet: building the page as a shot list (template frame + what to film per slot)")
 proposal = {o["slot"]: o for o in P.load_json(ms_path, [])}
 
-cat = expr.load(P.catalog())
 by_id = {c["id"]: c for c in cat}
 slots = P.slots()
 if not slots: sys.exit("no slots yet: analyze the template first (sb.py template-cuts / template-slots / template-merge)")
@@ -82,8 +86,31 @@ def clip_info(c):
             "created": created, "numkey": [m.group(1), m.group(3), int(m.group(2))] if m else None, "img": f"thumbs/clips/{c['id']}.jpg"}
 
 
+PEOPLE_TXT = {"none": "no people needed", "one": "one person", "few": "a few people", "crowd": "a crowd"}
+CAMERA_TXT = {"static": "hold the camera still", "handheld": "handheld", "pan_or_tilt": "slow pan or tilt", "zoom_or_crash_zoom": "zoom / punch in",
+              "moving_subject_static_camera": "camera still, subject moves", "whip_pan": "fast whip pan"}
+
+
+def film_seconds(s):
+    """how much to shoot for a slot: its length plus about a second of trimming room"""
+    return int(s["dur_s"] + 1.0 + 0.999)
+
+
+def film_note(s):
+    """what to film for a slot without footage, in plain words from its tags"""
+    bits = [s.get("summary") or "(slot not described yet)"]
+    how = [f"{s['framing']} shot" if s.get("framing") else "", PEOPLE_TXT.get(s.get("people"), ""), CAMERA_TXT.get(s.get("camera_look"), "")]
+    if s.get("energy"): how.append(f"energy {s['energy']}/5")
+    bits.append(", ".join(x for x in how if x))
+    bits.append(f"film at least {film_seconds(s)} s")
+    if s.get("text_on_screen"): bits.append(f"text added in the edit: {s['text_on_screen']}")
+    if s.get("notes"): bits.append(s["notes"])
+    return " - ".join(b for b in bits if b)
+
+
 used_clips = set()
 out_slots = []
+shot_list = []
 for s in slots:
     sid = s["id"]
     p = picks.get(sid)
@@ -92,16 +119,26 @@ for s in slots:
            "text_on_screen": s.get("text_on_screen", ""), "inserted": bool(s.get("inserted")),
            "ref_img": None if s.get("inserted") or not P.REFERENCE else thumb_job(SB / "thumbs" / "ref" / f"{sid}.jpg", str(P.REFERENCE), s["frame_times_s"][1]), "history": slot_history(sid)}
     fx = P.treatment_fx(s)
+    if s.get("treatment") not in (None, "", "none", "bw_grain", "blur_streak", "flash_glow"): fx.append(s["treatment"].replace("_", " "))
     if s.get("inserted"): fx.append("inserted shot")
     row["fx"] = fx
+    t0 = s["start_frame"] / float(P.TEMPLATE_FPS or P.FPS) if not s.get("inserted") else s["tl_start"] / P.FPS
+    when = f"{int(t0 // 60)}:{t0 % 60:04.1f}"
     if p is None:
-        row.update(locked=True, lock_reason="no clip yet", current=None, options=[],
-                   card={"built": False, "title": "No clip yet", "how": "", "asset": "", "needs": "No footage picked for this slot yet (not matched, or the slot is not tagged)."})
+        if s.get("needs_real_footage") is False or s.get("category") == "graphic":
+            card = {"built": False, "badge": "IN EDIT", "title": "Made in the edit", "how": "Card / graphic - nothing to film", "asset": "", "needs": s.get("summary") or ""}
+            shot_list.append((sid, when, s["dur_s"], "made in the edit", s.get("summary", "")))
+        else:
+            card = {"built": False, "badge": "TO FILM", "title": f"To film - {film_seconds(s)} s or more", "how": "No footage yet: film this, then scan it (sb.py scan)", "asset": "", "needs": film_note(s)}
+            shot_list.append((sid, when, s["dur_s"], f"to film ({film_seconds(s)} s+)", film_note(s)))
+        row.update(locked=True, lock_reason="no clip yet", current=None, options=[], card=card)
         out_slots.append(row); continue
     if p["kind"] in ("template", "graphic") or p.get("interview"):
         k = graphic_info.get(sid, {})
         card = {"built": bool(k.get("built")), "title": k.get("title") or "Template placeholder", "how": k.get("how", ""), "asset": k.get("asset", ""),
                 "needs": k.get("needs") or p.get("reason") or "Kept as the template's own shot until you supply an asset."}
+        if k.get("badge"): card["badge"] = k["badge"]
+        shot_list.append((sid, when, s["dur_s"], "card / graphic" if not p.get("interview") else f"interview {p['interview']}", card["title"] + (": " + card["needs"] if card["needs"] else "")))
         if card["built"] and card["asset"]:
             asset = pathlib.Path(P.source_path(card["asset"])); at_t = s["dur_s"] * 0.55
             if p.get("interview") and p["interview"] in interviews:      # show the interview at the moment this spot plays (pieces laid out as in make_build_plan.py)
@@ -149,6 +186,14 @@ for s in slots:
                      "img": thumb_job(SB / "thumbs" / "slot" / f"{sid}_{cid}_{int(mid * 10):05d}{'_z' + str(af['zoom']) if af else ''}.jpg", P.abs_path(c["path"]), mid, expr.crop_filter(c, af.get("zoom")))})
     row["options"] = opts
     out_slots.append(row)
+    shot_list.append((sid, when, s["dur_s"], f"picked: {cc['id']}", f"{cc['file']} {p['src_in_s']:.1f}-{p['src_out_s']:.1f}s - {cc['summary']}"))
+
+L_ = [f"# Shot list - {P.TITLE}", "",
+      f"Template `{P.REFERENCE.name if P.REFERENCE else '-'}`, {len(slots)} slots, {slots[-1]['tl_end'] / FPS:.1f} s. Built {datetime.date.today().isoformat()} with the storyboard"
+      " (`storyboard/index.html` shows the template frame of every slot). Film each shot a bit longer than its length so it can be trimmed.", "",
+      "| Slot | At | Length | Status | What |", "|---|---|---|---|---|"]
+L_ += [f"| {sid} | {when} | {dur:.1f} s | {status} | {what.replace('|', '/')} |" for sid, when, dur, status, what in shot_list]
+open(SB / "shot_list.md", "w", encoding="utf-8").write("\n".join(L_) + "\n")
 
 clips_out = {cid: clip_info(by_id[cid]) for cid in used_clips}
 for c in cat:            # one preview per clip in the catalog (best moment)

@@ -53,6 +53,15 @@ class DemoPipeline(unittest.TestCase):
         self.sb("template-brief")
         self.assertIn("Shot list to find in the footage", (self.proj / "template_brief.md").read_text())
 
+        # before any footage: the storyboard is a shot list (template frame + what to film per slot)
+        self.sb("storyboard", "--round", "0")
+        d0 = (self.proj / "storyboard" / "data.js").read_text()
+        sb0 = json.loads(d0[len("window.SB = "):].rstrip().rstrip(";"))
+        badges = [(s["id"], (s.get("card") or {}).get("badge")) for s in sb0["slots"]]
+        self.assertEqual(sum(1 for _, b in badges if b == "TO FILM"), 4, badges)      # the 4 footage slots of the demo
+        shots = (self.proj / "storyboard" / "shot_list.md").read_text()
+        self.assertIn("to film", shots); self.assertIn("card / graphic", shots)
+
         out = self.sb("scan", "--batch", "b01").stdout
         self.assertIn("14 clips ready", out)
         shutil.copy(self.media / "fixtures" / "clip_tags.json", self.proj / "catalog" / "batches" / "b01" / "tags_A.json")

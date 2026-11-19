@@ -52,7 +52,7 @@ main{padding:10px 14px 80px;max-width:1700px;margin:0 auto}
 .cap{padding:6px 8px;background:#18181b;min-height:92px}
 .cap .lab{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--dim)}
 .cap .cid{font-weight:600;word-break:break-all}.cap .sum{color:#c7c7d0;font-size:12px;margin:2px 0}.cap .win{color:var(--dim);font-size:11px}
-.cell.locked{border-color:#444;cursor:default}.cell.locked .img{display:flex;align-items:center;justify-content:center;padding:14px;background:#000}
+.cell.locked{border-color:#444;cursor:default}.cell.tofilm{border-color:#2d6a4f}.cell.tofilm .badge{background:#2d6a4f}.cell.locked .img{display:flex;align-items:center;justify-content:center;padding:14px;background:#000}
 .cell.locked .badge{background:#555}.cell.built{border-color:#7a5ec2}.cell.built .badge{background:#7a5ec2}.cell.locked .img img{padding:0}
 .needtxt{color:#f2d27a;font-size:13px;line-height:1.4;text-align:left}.sum.need b{color:#f2d27a}
 .rf{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:8px 12px;border-top:1px solid var(--line);background:#1a1a1e}
@@ -101,6 +101,7 @@ const PID = String(D.project||'storyboard').replace(/[^A-Za-z0-9_-]/g,'_');
 const TITLE = (D.title||'Video')+' storyboard';
 document.title = TITLE; document.getElementById('title').textContent = TITLE;
 if(D.aspect) document.documentElement.style.setProperty('--ar', D.aspect[0]+'/'+D.aspect[1]);
+if(!D.slots.some(s=>s.current)) document.querySelector('.help').innerHTML='<b>No footage yet:</b> every row shows the template\'s shot next to what to film for it (<b>TO FILM</b>) or what is made in the edit (<b>IN EDIT</b>). A printable version is <code>storyboard/shot_list.md</code>. Notes you leave here are saved like choices. Once the footage is scanned, this page shows clip options to choose from.';
 const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const $ = (s,e=document)=>e.querySelector(s);
 const KEY = 'sb_'+PID+'_r'+D.round+'_'+D.timeline;
@@ -172,9 +173,10 @@ function buildRow(slot){
   const R={root,cells:{}};
   if(!slot.current || slot.locked){
     const k=slot.card||{needs:'Kept as the template\'s own shot.',title:'Locked'};
-    cells += '<div class="cell locked'+(k.built?' built':'')+'" data-l="LOCK"><span class="badge" style="font-size:13px;padding-top:6px">'+(k.built?'BUILT':'NEEDS')+'</span>'
+    const badge=k.badge||(k.built?'BUILT':'NEEDS'), tofilm=k.badge==='TO FILM';
+    cells += '<div class="cell locked'+(k.built?' built':'')+(tofilm?' tofilm':'')+'" data-l="LOCK"><span class="badge" style="font-size:13px;padding-top:6px">'+esc(badge)+'</span>'
       + '<span class="img">'+(k.img?'<img loading="lazy" src="'+k.img+'" alt="">':'<span class="needtxt">'+esc(k.needs)+'</span>')+'</span>'
-      + '<div class="cap"><div class="lab">'+esc(k.title)+'</div>'+(k.built?'<div class="sum">'+esc(k.how)+'</div><div class="sum need"><b>Still needed:</b> '+esc(k.needs)+'</div><div class="win">'+esc(k.asset)+'</div>':'<div class="sum need">Locked - Claude will not change this slot.</div>')+'</div></div>';
+      + '<div class="cap"><div class="lab">'+esc(k.title)+'</div>'+(k.built?'<div class="sum">'+esc(k.how)+'</div><div class="sum need"><b>Still needed:</b> '+esc(k.needs)+'</div><div class="win">'+esc(k.asset)+'</div>':'<div class="sum need">'+esc(k.how||'Locked - Claude will not change this slot.')+'</div>')+'</div></div>';
     root.innerHTML = head+'<div class="cells">'+cells+'</div><div class="rf"><textarea data-role="note" placeholder="Note for Claude about this slot (optional)"></textarea></div>';
   } else {
     options(slot).forEach(o=>{
