@@ -21,6 +21,35 @@ and were generalized - expect to adjust them for your setup.
 - For the timeline: DaVinci Resolve Studio with its MCP server connected to Claude Code (`davinci-resolve`).
 - Optional: macOS + Xcode command line tools (face / smile detector), Pillow (`fit-text`, exposure contact sheet).
 
+## What to bring
+- **The template**: the video to imitate, as a file on disk (download it first; a link isn't enough). Your edit takes its orientation
+  (vertical or landscape) unless you say otherwise.
+- **Your footage**: a folder (with subfolders) of raw clips, stored on the disk. Cloud "online-only" files are skipped so nothing
+  triggers a huge download - make the folder available offline first.
+- **Text for the cards**: what the template's title and end cards should say in your version (names, dates, places).
+- Optional:
+  - music you're allowed to use (or say you'll keep the camera sound)
+  - logos, brand colours and fonts for the cards
+  - interview or talk recordings, if the template has talking heads
+- No footage yet? The template analysis alone gives you a **shooting storyboard** (`sb.py storyboard --round 0`): the template's
+  frame for every shot next to what to film, plus a printable `storyboard/shot_list.md`.
+
+## How to organize your footage
+```
+my_video/                    the project folder (sb.py init creates catalog/, history/, storyboard/ ...)
+  footage/                   or keep the footage where it is and pass --footage <folder> (several allowed)
+    2027-05-01 beach/        one folder per day, place or camera - folder names are shown to the taggers as hints
+    2027-05-02 park/
+    interviews/              long talks / interviews in their own folder (skip it in scans; it feeds the interview layer)
+  music/                     the track(s) you may use
+  assets/                    logos, backdrops, fonts for the cards
+```
+- Keep the camera's original file names: consecutive numbers help spot near-duplicate shots.
+- One shot per file works best; a finished edit used as footage is catalogued as a single clip.
+- Don't move or rename files after scanning. If you do, run `sb.py relink`, or change the folder list in `storyboard_project.json`
+  when a whole folder moved (the first folder that has a file wins - handy for a fast local copy plus an archive drive).
+- Only videos are scanned (photos are ignored); the template can stay wherever it is, it is referenced by path.
+
 ## Install the skill
 From GitHub, inside Claude Code:
 ```

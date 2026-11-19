@@ -9,6 +9,14 @@ current (replace stale lines instead of appending forever). Settings live in `st
 ## What we are making
 - (what the video is for, target length, where it will be shown, who reviews it)
 
+## Inputs (what the person provides)
+- [x] Template: `{TEMPLATE}`
+- [{FOOTAGE_OK}] Footage folder(s), stored locally: {FOOTAGE}
+- [ ] Text for the title / end cards:
+- [{MUSIC_OK}] Music they may use (or camera sound): {MUSIC}
+- [ ] Logos / colours / fonts for the cards (optional):
+- [ ] Interview or talk recordings (only if the template has talking heads):
+
 ## Rules the user set for this project
 - (standing decisions - do not relitigate them, e.g. "music at a constant -18 dB, no ducking", "keep my hand edits", "no clips of the stage")
 
